@@ -1,0 +1,120 @@
+buildscript {
+	repositories {
+		maven {
+			name = 'Sponge'
+			url = 'https://repo.spongepowered.org/repository/maven-public/'
+		}
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.spongepowered:mixingradle:0.7.+'
+	}
+}
+
+plugins {
+	id 'java'
+	id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+apply plugin: 'org.spongepowered.mixin'
+
+def shared = new Properties()
+file('../gradle.properties').withInputStream { shared.load(it) }
+def mcVersion = shared.minecraft_version
+def forgeVersion = shared.forge_version
+
+version = shared.version
+group = shared.group
+
+base {
+	archivesName = "${shared.archives_name}-forge-${mcVersion}"
+}
+
+java {
+	toolchain.languageVersion = JavaLanguageVersion.of(shared.java_version as int)
+	withSourcesJar()
+}
+
+sourceSets.main {
+	java.srcDir('../common/src/main/java')
+	resources.srcDir('../common/src/main/resources')
+}
+
+if (providers.gradleProperty('gametests').isPresent()) {
+	sourceSets.main.java.srcDirs('../common/src/gametest/java', 'src/gametest/java')
+	sourceSets.main.resources.srcDir('src/gametest/resources')
+}
+
+sourceSets.test {
+	java.srcDir('../common/src/test/java')
+}
+
+sourceSets.main.output.resourcesDir = sourceSets.main.java.destinationDirectory.get().asFile
+
+mixin {
+	add sourceSets.main, 'effirromplus.refmap.json'
+	config 'effirromplus.mixins.json'
+}
+
+minecraft {
+	mappings channel: 'official', version: mcVersion
+
+	runs {
+		configureEach {
+			workingDirectory project.file('run')
+			property 'mixin.env.remapRefMap', 'true'
+			property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+			mods {
+				effirromplus {
+					source sourceSets.main
+				}
+			}
+		}
+		client {
+		}
+		server {
+			args '--nogui'
+			if (providers.gradleProperty('selftest').isPresent()) {
+				workingDirectory project.file('run-selftest')
+				property 'effirromplus.selftest', 'true'
+			}
+		}
+		gameTestServer {
+			property 'forge.enabledGameTestNamespaces', 'effirromplus'
+		}
+	}
+}
+
+dependencies {
+	minecraft "net.minecraftforge:forge:${forgeVersion}"
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+	testImplementation platform("org.junit:junit-bom:${shared.junit_version}")
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+processResources {
+	def props = [version: project.version, forge_version: forgeVersion.split('-')[1], data_format: shared.data_pack_format,
+			resource_format: shared.resource_pack_format, mod_name: shared.mod_name, mod_author: shared.mod_author,
+			description: shared.mod_description]
+	inputs.properties props
+	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+		expand props
+	}
+}
+
+jar {
+	from('../../../LICENSE') {
+		rename { "${it}_effirromplus" }
+	}
+	manifest.attributes('MixinConfigs': 'effirromplus.mixins.json')
+	finalizedBy 'reobfJar'
+}

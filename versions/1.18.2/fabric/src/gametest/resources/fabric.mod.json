@@ -1,0 +1,19 @@
+{
+	"schemaVersion": 1,
+	"id": "effirromplus-test",
+	"version": "1.0.0",
+	"name": "Effirromplus game tests",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.santiagosantofimio.effirromplus.test.SelfTestFabric"
+		],
+		"fabric-gametest": [
+			"dev.santiagosantofimio.effirromplus.test.EffirromplusGameTests"
+		]
+	},
+	"depends": {
+		"effirromplus": "*",
+		"fabric-gametest-api-v1": "*"
+	}
+}

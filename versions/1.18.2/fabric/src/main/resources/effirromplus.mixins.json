@@ -1,0 +1,18 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "dev.santiagosantofimio.effirromplus.mixin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"DigDurabilityEnchantmentMixin",
+		"DiggingEnchantmentMixin",
+		"EnchantBookForEmeraldsMixin",
+		"EnchantRandomlyFunctionMixin",
+		"EnchantmentHelperMixin",
+		"LootTableMixin",
+		"LootTablesMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
