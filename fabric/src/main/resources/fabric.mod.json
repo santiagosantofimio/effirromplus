@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "effirromplus",
+	"version": "${version}",
+	"name": "${mod_name}",
+	"description": "${description}",
+	"authors": [
+		"Santiago Santofimio"
+	],
+	"contact": {
+		"sources": "https://github.com/santiagosantofimio/effirromplus",
+		"issues": "https://github.com/santiagosantofimio/effirromplus/issues"
+	},
+	"license": "MIT",
+	"environment": "*",
+	"mixins": [
+		"effirromplus.mixins.json"
+	],
+	"entrypoints": {
+		"main": [
+			"dev.santiagosantofimio.effirromplus.fabric.EffirromplusFabric"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=${fabric_loader_version}",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

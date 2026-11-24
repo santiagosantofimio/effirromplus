@@ -1,0 +1,54 @@
+plugins {
+	id 'multiloader-loader'
+	id 'net.neoforged.moddev'
+}
+
+neoForge {
+	version = neoforge_version
+
+	runs {
+		client {
+			client()
+		}
+		server {
+			server()
+			programArgument('--nogui')
+			if (providers.gradleProperty('selftest').isPresent()) {
+				gameDirectory = file('run-selftest')
+				systemProperty 'effirromplus.selftest', 'true'
+			}
+		}
+		gameTest {
+			type = 'gameTestServer'
+		}
+	}
+
+	mods {
+		"${mod_id}" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+if (providers.gradleProperty('gametests').isPresent()) {
+	sourceSets.main.java.srcDirs(project(':common').file('src/gametest/java'), 'src/gametest/java')
+	sourceSets.main.resources.srcDir(project(':common').file('src/gametest/resources'))
+}
+
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements'].each { variant ->
+	configurations.named(variant) {
+		attributes {
+			attribute(loaderAttribute, 'neoforge')
+		}
+	}
+}
+sourceSets.configureEach {
+	[it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant ->
+		configurations.named(variant) {
+			attributes {
+				attribute(loaderAttribute, 'neoforge')
+			}
+		}
+	}
+}

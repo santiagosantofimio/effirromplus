@@ -1,0 +1,13 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}" apply false
+	id 'net.neoforged.moddev' version "${moddev_version}" apply false
+}
+
+tasks.register('dist', Sync) {
+	group = 'build'
+	description = 'Collects the jars for every mod loader in build/dist.'
+	from(project(':fabric').tasks.named('jar'))
+	from(project(':neoforge').tasks.named('jar'))
+	from(project(':forge').tasks.named('jar'))
+	into(layout.buildDirectory.dir('dist'))
+}

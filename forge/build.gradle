@@ -1,0 +1,50 @@
+plugins {
+	id 'multiloader-loader'
+	id 'net.minecraftforge.gradle' version "${forgegradle_version}"
+}
+
+minecraft {
+	runs {
+		configureEach {
+			workingDir = layout.projectDirectory.dir('run')
+			systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
+		}
+		register('client') {
+			args '--mixin.config', 'effirromplus.mixins.json'
+			if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+				jvmArgs '-XstartOnFirstThread'
+			}
+		}
+		register('server') {
+			args '--nogui', '--mixin.config', 'effirromplus.mixins.json'
+			if (providers.gradleProperty('selftest').isPresent()) {
+				workingDir = layout.projectDirectory.dir('run-selftest')
+				systemProperty 'effirromplus.selftest', 'true'
+			}
+		}
+		register('gameTestServer') {
+			args '--mixin.config', 'effirromplus.mixins.json'
+		}
+	}
+}
+
+repositories {
+	minecraft.mavenizer(it)
+	maven fg.forgeMaven
+	maven fg.minecraftLibsMaven
+	mavenCentral()
+}
+
+dependencies {
+	implementation minecraft.dependency("net.minecraftforge:forge:${forge_version}")
+	annotationProcessor "net.minecraftforge:eventbus-validator:${eventbus_validator_version}"
+}
+
+if (providers.gradleProperty('gametests').isPresent()) {
+	sourceSets.main.java.srcDirs(project(':common').file('src/gametest/java'), 'src/gametest/java')
+	sourceSets.main.resources.srcDir(project(':common').file('src/gametest/resources'))
+}
+
+jar {
+	manifest.attributes('MixinConfigs': 'effirromplus.mixins.json')
+}
