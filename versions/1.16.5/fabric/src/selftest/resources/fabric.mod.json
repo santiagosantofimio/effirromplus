@@ -1,0 +1,16 @@
+{
+	"schemaVersion": 1,
+	"id": "effirromplus-selftest",
+	"version": "1.0.0",
+	"name": "Effirromplus self test",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"dev.santiagosantofimio.effirromplus.test.SelfTestFabric"
+		]
+	},
+	"depends": {
+		"effirromplus": "*",
+		"fabric": "*"
+	}
+}

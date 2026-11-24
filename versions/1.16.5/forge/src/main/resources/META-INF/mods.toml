@@ -1,0 +1,25 @@
+modLoader = "javafml"
+loaderVersion = "[36,)"
+license = "MIT"
+
+[[mods]]
+modId = "effirromplus"
+version = "${version}"
+displayName = "${mod_name}"
+authors = "${mod_author}"
+description = '''${description}'''
+displayTest = "IGNORE_ALL_VERSION"
+
+[[dependencies.effirromplus]]
+modId = "forge"
+mandatory = true
+versionRange = "[${forge_version},)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.effirromplus]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5,1.17)"
+ordering = "NONE"
+side = "BOTH"

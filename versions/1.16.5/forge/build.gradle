@@ -1,0 +1,99 @@
+plugins {
+	id 'dev.architectury.loom' version '1.17.493'
+	id 'xyz.wagyourtail.jvmdowngrader' version '2.0.1'
+}
+
+def shared = new Properties()
+file('../gradle.properties').withInputStream { shared.load(it) }
+def mcVersion = shared.minecraft_version
+def forgeVersion = shared.forge_version
+def javaVersion = shared.java_version as int
+
+version = shared.version
+group = shared.group
+
+base {
+	archivesName = "${shared.archives_name}-forge-${mcVersion}"
+}
+
+java {
+	toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
+}
+
+sourceSets.main {
+	java.srcDir('../common/src/main/java')
+	resources.srcDir('../common/src/main/resources')
+}
+
+sourceSets.test {
+	java.srcDir('../common/src/test/java')
+}
+
+loom {
+	silentMojangMappingsLicense()
+	forge {
+		mixinConfig 'effirromplus.mixins.json'
+	}
+	mixin {
+		useLegacyMixinAp = true
+		defaultRefmapName = 'effirromplus.refmap.json'
+	}
+}
+
+if (providers.gradleProperty('selftest').isPresent()) {
+	sourceSets.main.java.srcDirs('../common/src/selftest/java', 'src/selftest/java')
+	loom {
+		runs {
+			server {
+				runDir 'run-selftest'
+				property 'effirromplus.selftest', 'true'
+			}
+		}
+	}
+}
+
+repositories {
+	maven {
+		name = 'MinecraftForge'
+		url = 'https://maven.minecraftforge.net/'
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${mcVersion}"
+	mappings loom.officialMojangMappings()
+	forge "net.minecraftforge:forge:${forgeVersion}"
+	testImplementation platform("org.junit:junit-bom:${shared.junit_version}")
+	testImplementation 'org.junit.jupiter:junit-jupiter'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+	options.release = javaVersion
+}
+
+test {
+	useJUnitPlatform()
+}
+
+processResources {
+	def props = [version: project.version, forge_version: forgeVersion.split('-')[1], data_format: shared.data_pack_format,
+			resource_format: shared.resource_pack_format, mod_name: shared.mod_name, mod_author: shared.mod_author,
+			description: shared.mod_description]
+	inputs.properties props
+	filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+		expand props
+	}
+}
+
+jar {
+	from('../../../LICENSE') {
+		rename { "${it}_effirromplus" }
+	}
+}
+
+jvmdg.downgradeTo = JavaVersion.VERSION_1_8
+remapJar {
+	inputFile = tasks.named('shadeDowngradedApi').flatMap { it.archiveFile }
+}

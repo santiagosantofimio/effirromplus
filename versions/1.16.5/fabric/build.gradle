@@ -1,0 +1,40 @@
+plugins {
+	id 'fabric-loom' version "${loom_version}"
+	id 'xyz.wagyourtail.jvmdowngrader' version "${jvmdg_version}"
+}
+
+jvmdg.downgradeTo = JavaVersion.VERSION_1_8
+remapJar {
+	inputFile = tasks.named('shadeDowngradedApi').flatMap { it.archiveFile }
+}
+
+sourceSets {
+	selftest {
+		java.srcDir(rootProject.file('common/src/selftest/java'))
+		compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
+		runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+	}
+}
+
+loom {
+	runs {
+		selftest {
+			server()
+			name = 'Self test server'
+			runDir 'run-selftest'
+			source sourceSets.selftest
+			vmArg '-Deffirromplus.selftest=true'
+		}
+	}
+	mixin {
+		useLegacyMixinAp = true
+		defaultRefmapName = 'effirromplus.refmap.json'
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+}
