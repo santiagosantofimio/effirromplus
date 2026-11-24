@@ -1,0 +1,84 @@
+def javaVersion = project.java_version as int
+
+subprojects {
+	version = rootProject.version
+	group = rootProject.group
+
+	plugins.withId('java') {
+		base {
+			archivesName = "${archives_name}-${project.name}-${minecraft_version}"
+		}
+
+		java {
+			toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
+			withSourcesJar()
+		}
+
+		sourceSets {
+			main {
+				java.srcDir(rootProject.file('common/src/main/java'))
+				resources.srcDir(rootProject.file('common/src/main/resources'))
+			}
+			if (project.name == 'fabric') {
+				test {
+					java.srcDir(rootProject.file('common/src/test/java'))
+				}
+			}
+		}
+
+		tasks.withType(JavaCompile).configureEach {
+			options.encoding = 'UTF-8'
+			options.release = javaVersion
+		}
+
+		dependencies {
+			testImplementation platform("org.junit:junit-bom:${project.junit_version}")
+			testImplementation 'org.junit.jupiter:junit-jupiter'
+			testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+		}
+
+		test {
+			useJUnitPlatform()
+		}
+
+		jar {
+			from(rootProject.file('../../LICENSE')) {
+				rename { "${it}_${mod_id}" }
+			}
+		}
+
+		processResources {
+			var properties = [
+					'version'                      : project.version,
+					'mod_id'                       : mod_id,
+					'mod_name'                     : mod_name,
+					'mod_author'                   : mod_author,
+					'license'                      : license,
+					'description'                  : mod_description,
+					'minecraft_version_range'      : minecraft_version_range,
+					'fabric_minecraft_range'       : fabric_minecraft_range,
+					'fabric_loader_version'        : fabric_loader_version,
+					'neoforge_version'             : neoforge_version,
+					'neoforge_loader_version_range': neoforge_loader_version_range,
+					'forge_version_range'          : forge_version_range,
+					'java_version'                 : java_version,
+			]
+			inputs.properties(properties)
+			filesMatching(['fabric.mod.json', 'META-INF/mods.toml', 'META-INF/neoforge.mods.toml']) {
+				expand(properties)
+			}
+		}
+	}
+}
+
+tasks.register('dist', Sync) {
+	group = 'build'
+	description = 'Collects the jars for every mod loader in build/dist.'
+	subprojects.each { sub ->
+		dependsOn("${sub.path}:assemble")
+		from(sub.layout.buildDirectory.dir('libs')) {
+			include("${archives_name}-${sub.name}-${minecraft_version}-${version}.jar")
+		}
+	}
+	into(layout.buildDirectory.dir('dist'))
+}
