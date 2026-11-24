@@ -1,0 +1,36 @@
+plugins {
+	id 'java-library'
+	id 'net.neoforged.moddev' version "${moddev_version}"
+}
+
+neoForge {
+	version = neoforge_version
+
+	runs {
+		client {
+			client()
+		}
+		server {
+			server()
+			programArgument('--nogui')
+			if (providers.gradleProperty('selftest').isPresent()) {
+				gameDirectory = file('run-selftest')
+				systemProperty 'effirromplus.selftest', 'true'
+			}
+		}
+		gameTest {
+			type = 'gameTestServer'
+		}
+	}
+
+	mods {
+		"${mod_id}" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+if (providers.gradleProperty('gametests').isPresent()) {
+	sourceSets.main.java.srcDirs(rootProject.file('common/src/gametest/java'), 'src/gametest/java')
+	sourceSets.main.resources.srcDir(rootProject.file('common/src/gametest/resources'))
+}
