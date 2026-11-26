@@ -5,7 +5,7 @@ Adds two enchantment levels above vanilla, as rare enchanted books:
 - Unbreaking IV (vanilla stops at III)
 - Efficiency VI (vanilla stops at V)
 
-The mod only needs to be installed on the server. Players join with plain Minecraft.
+Works on a server and on a client. Install it on the server and players join with plain Minecraft, or install it in your own game to use it in singleplayer. The same jar does both.
 
 ## How to get them
 

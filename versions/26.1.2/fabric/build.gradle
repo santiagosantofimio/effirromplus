@@ -7,7 +7,7 @@ fabricApi {
 		createSourceSet = true
 		modId = 'effirromplus-test'
 		enableGameTests = true
-		enableClientGameTests = false
+		enableClientGameTests = true
 	}
 }
 

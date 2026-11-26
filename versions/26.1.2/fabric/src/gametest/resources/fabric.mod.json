@@ -8,12 +8,16 @@
 		"main": [
 			"dev.santiagosantofimio.effirromplus.test.SelfTestFabric"
 		],
+		"fabric-client-gametest": [
+			"dev.santiagosantofimio.effirromplus.test.EffirromplusClientGameTests"
+		],
 		"fabric-gametest": [
 			"dev.santiagosantofimio.effirromplus.test.EffirromplusGameTests"
 		]
 	},
 	"depends": {
 		"effirromplus": "*",
-		"fabric-gametest-api-v1": "*"
+		"fabric-gametest-api-v1": "*",
+		"fabric-client-gametest-api-v1": "*"
 	}
 }

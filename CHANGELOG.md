@@ -11,4 +11,4 @@ First release, for Minecraft 26.3 on Fabric, NeoForge and Forge.
 - Two Efficiency V give Efficiency VI and two Unbreaking III give Unbreaking IV in an anvil, with books or tools.
 - The enchanting table, loot tables, and the random book a librarian sells never go above Unbreaking III or Efficiency V.
 - Everything is adjustable in `config/effirromplus.json`.
-- Server side only: players join with plain Minecraft.
+- Works on servers and on clients: on a server, players join with plain Minecraft; in a client, singleplayer worlds get the same books.
